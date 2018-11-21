@@ -130,4 +130,36 @@ public class KauppaTest {
         
         verify(pankki).tilisiirto(eq("kunkku"), anyInt(), eq("222222"), anyString(), eq(5));
     }
+    
+    @Test
+    public void aloitaAsiointiNollaaOstokset() {
+        when(viite.uusi()).thenReturn(42);
+        when(varasto.saldo(1)).thenReturn(10); 
+        when(varasto.haeTuote(1)).thenReturn(new Tuote(1, "maito", 5));
+        
+        k.aloitaAsiointi();
+        k.lisaaKoriin(1);
+        k.aloitaAsiointi();
+        
+        k.tilimaksu("kunkku", "222222");
+        
+        verify(pankki).tilisiirto(eq("kunkku"), anyInt(), eq("222222"), anyString(), eq(0));
+    }
+    
+    @Test
+    public void uusiViitenumeroJokaMaksu() {
+        Tuote t = new Tuote(1, "maito", 5);
+        when(varasto.haeTuote(1)).thenReturn(t);
+        
+        k.aloitaAsiointi();
+        k.lisaaKoriin(1);
+        k.poistaKorista(1);
+        
+        verify(varasto).palautaVarastoon(t);
+    }
+    
+    @Test
+    public void koristaPoistaminenPalauttaaTuotteenVarastoon() {
+        
+    }
 }
